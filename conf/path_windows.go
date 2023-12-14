@@ -10,7 +10,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"unsafe"
 
 	"golang.org/x/sys/windows"
 )
@@ -48,11 +47,12 @@ func RootDirectory(create bool) (string, error) {
 	if cachedRootDir != "" {
 		return cachedRootDir, nil
 	}
+	//FIXME: does it point to ProgramFiles64Folder or ProgramFilesFolder
 	root, err := windows.KnownFolderPath(windows.FOLDERID_ProgramFiles, windows.KF_FLAG_DEFAULT)
 	if err != nil {
 		return "", err
 	}
-	root = filepath.Join(root, "WireGuard")
+	root = filepath.Join(root, "YeicoTunnel")
 	if !create {
 		return filepath.Join(root, "Data"), nil
 	}
@@ -67,14 +67,14 @@ func RootDirectory(create bool) (string, error) {
 		return "", err
 	}
 
-	dataDirectorySd, err := windows.SecurityDescriptorFromString("O:SYG:SYD:PAI(A;OICI;FA;;;SY)(A;OICI;FA;;;BA)")
-	if err != nil {
-		return "", err
-	}
-	dataDirectorySa := &windows.SecurityAttributes{
-		Length:             uint32(unsafe.Sizeof(windows.SecurityAttributes{})),
-		SecurityDescriptor: dataDirectorySd,
-	}
+	// dataDirectorySd, err := windows.SecurityDescriptorFromString("O:SYG:SYD:PAI(A;OICI;FA;;;SY)(A;OICI;FA;;;BA)")
+	// if err != nil {
+	// 	return "", err
+	// }
+	// dataDirectorySa := &windows.SecurityAttributes{
+	// 	Length:             uint32(unsafe.Sizeof(windows.SecurityAttributes{})),
+	// 	SecurityDescriptor: dataDirectorySd,
+	// }
 
 	data := filepath.Join(root, "Data")
 	data16, err := windows.UTF16PtrFromString(data)
@@ -83,11 +83,11 @@ func RootDirectory(create bool) (string, error) {
 	}
 	var dataHandle windows.Handle
 	for {
-		err = windows.CreateDirectory(data16, dataDirectorySa)
+		err = windows.CreateDirectory(data16, nil)
 		if err != nil && err != windows.ERROR_ALREADY_EXISTS {
 			return "", err
 		}
-		dataHandle, err = windows.CreateFile(data16, windows.READ_CONTROL|windows.WRITE_OWNER|windows.WRITE_DAC, windows.FILE_SHARE_READ|windows.FILE_SHARE_WRITE|windows.FILE_SHARE_DELETE, nil, windows.OPEN_EXISTING, windows.FILE_FLAG_BACKUP_SEMANTICS|windows.FILE_FLAG_OPEN_REPARSE_POINT|windows.FILE_ATTRIBUTE_DIRECTORY, 0)
+		dataHandle, err = windows.CreateFile(data16, windows.GENERIC_ALL, windows.FILE_SHARE_READ|windows.FILE_SHARE_WRITE|windows.FILE_SHARE_DELETE, nil, windows.OPEN_EXISTING, windows.FILE_FLAG_BACKUP_SEMANTICS|windows.FILE_FLAG_OPEN_REPARSE_POINT|windows.FILE_ATTRIBUTE_DIRECTORY, 0)
 		if err != nil && err != windows.ERROR_FILE_NOT_FOUND {
 			return "", err
 		}
@@ -121,10 +121,10 @@ func RootDirectory(create bool) (string, error) {
 	if !strings.EqualFold(`\\?\`+data, windows.UTF16ToString(buf[:])) {
 		return "", errors.New("Data directory jumped to unexpected location")
 	}
-	err = windows.SetKernelObjectSecurity(dataHandle, windows.DACL_SECURITY_INFORMATION|windows.GROUP_SECURITY_INFORMATION|windows.OWNER_SECURITY_INFORMATION|windows.PROTECTED_DACL_SECURITY_INFORMATION, dataDirectorySd)
-	if err != nil {
-		return "", err
-	}
+	// err = windows.SetKernelObjectSecurity(dataHandle, windows.DACL_SECURITY_INFORMATION|windows.GROUP_SECURITY_INFORMATION|windows.OWNER_SECURITY_INFORMATION|windows.PROTECTED_DACL_SECURITY_INFORMATION, dataDirectorySd)
+	// if err != nil {
+	// 	return "", err
+	// }
 	cachedRootDir = data
 	return cachedRootDir, nil
 }

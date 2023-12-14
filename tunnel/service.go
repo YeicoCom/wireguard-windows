@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 	"runtime"
 	"time"
 
@@ -95,6 +96,11 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 		stopIt <- true
 		log.Println("Shutting down")
 	}()
+
+	//relative creation of Data folder during development
+	//log.bin is created directly on this folder
+	//its name should be DataDirectory instead
+	conf.PresetRootDirectory(filepath.Dir(service.Path))
 
 	var logFile string
 	logFile, err = conf.LogFile(true)

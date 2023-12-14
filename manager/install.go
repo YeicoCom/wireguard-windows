@@ -161,10 +161,11 @@ func InstallTunnel(configPath string) error {
 
 	config := mgr.Config{
 		ServiceType:  windows.SERVICE_WIN32_OWN_PROCESS,
-		StartType:    mgr.StartAutomatic,
+		StartType:    mgr.StartManual,
 		ErrorControl: mgr.ErrorNormal,
 		Dependencies: []string{"Nsi", "TcpIp"},
-		DisplayName:  "WireGuard Tunnel: " + name,
+		DisplayName:  "Yeico Tunnel Instance",
+		Description:  "Runs the yeico tunnel instance.",
 		SidType:      windows.SERVICE_SID_TYPE_UNRESTRICTED,
 	}
 	service, err = m.CreateService(serviceName, path, config, "/tunnelservice", configPath)

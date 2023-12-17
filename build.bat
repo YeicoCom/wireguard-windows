@@ -41,9 +41,9 @@ if exist .deps\prepared goto :render
 		echo [+] Regenerating files
 		go generate ./... || exit /b 1
 	)
-	call :build_plat amd64 x86_64 amd64 || goto :error
-	rem call :build_plat arm64 aarch64 arm64 || goto :error
-	rem call :build_plat x86 i686 386 || goto :error
+	if NOT "%ARCHS%"=="%ARCHS:amd64=%" call :build_plat amd64 x86_64 amd64 || goto :error
+	if NOT "%ARCHS%"=="%ARCHS:arm64=%" call :build_plat arm64 aarch64 arm64 || goto :error
+	if NOT "%ARCHS%"=="%ARCHS:x86=%" call :build_plat x86 i686 386 || goto :error
 
 :sign
 	if exist .\sign.bat call .\sign.bat

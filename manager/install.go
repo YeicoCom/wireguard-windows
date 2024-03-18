@@ -164,8 +164,8 @@ func InstallTunnel(configPath string) error {
 		StartType:    mgr.StartManual,
 		ErrorControl: mgr.ErrorNormal,
 		Dependencies: []string{"Nsi", "TcpIp"},
-		DisplayName:  "Yeico Tunnel Instance",
-		Description:  "Runs the yeico tunnel instance.",
+		DisplayName:  "Tunel Mx Instancia",
+		Description:  "Ejecuta una instancia tunel mx.",
 		SidType:      windows.SERVICE_SID_TYPE_UNRESTRICTED,
 	}
 	service, err = m.CreateService(serviceName, path, config, "/tunnelservice", configPath)

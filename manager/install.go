@@ -164,8 +164,8 @@ func InstallTunnel(configPath string) error {
 		StartType:    mgr.StartManual,
 		ErrorControl: mgr.ErrorNormal,
 		Dependencies: []string{"Nsi", "TcpIp"},
-		DisplayName:  "Tunel Mx Instancia",
-		Description:  "Ejecuta una instancia tunel mx.",
+		DisplayName:  "TunelMx Instance",
+		Description:  "Executes a wireguard network interface instance.",
 		SidType:      windows.SERVICE_SID_TYPE_UNRESTRICTED,
 	}
 	service, err = m.CreateService(serviceName, path, config, "/tunnelservice", configPath)
